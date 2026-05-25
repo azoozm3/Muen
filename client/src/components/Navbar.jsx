@@ -70,7 +70,7 @@ export function Navbar() {
                 </Button>
               )}
               <Button type="button" variant="ghost" size="icon" onClick={popups?.openProfile} title="Profile"><UserCircle className="h-5 w-5" /></Button>
-              <Button type="button" variant="ghost" size="icon" onClick={popups?.openChat} title="Chat"><Bot className="h-5 w-5" /></Button>
+
               {user.role === "admin" && !isAdminViewingOtherRole && (
                 <Badge variant="destructive" className="hidden text-xs sm:inline-flex">
                   <Shield className="mr-1 h-3 w-3" /> Admin

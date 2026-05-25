@@ -3,12 +3,17 @@ import { QuickLinkCard, ActiveEmergencyCard, ChatbotFab, HelpButton, patientGree
 import PatientGreetingHero from "@/features/patient-home/PatientGreetingHero";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyEmergencyRequests } from "@/hooks/use-emergency-requests";
+import { useGlobalPopups } from "@/context/GlobalPopupsContext";
+
+
 
 export default function PatientGreetingPageView() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const { data: myEmergencyData } = useMyEmergencyRequests();
   const activeEmergency = myEmergencyData?.activeRequest || null;
+  const popups = useGlobalPopups();
+
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 py-8">
@@ -24,7 +29,7 @@ export default function PatientGreetingPageView() {
         <QuickLinkCard {...patientGreetingQuickLinks.profile} delay={0.5} onClick={() => navigate("/profile")} testId="button-patient-profile" />
       </div>
 
-      <ChatbotFab onClick={() => navigate("/dashboard/patient/chatbot")} />
+      <ChatbotFab onClick={() => popups?.openChat?.()} />
     </div>
   );
 }
