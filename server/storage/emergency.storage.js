@@ -36,8 +36,8 @@ export const emergencyStorageMethods = {
     return EmergencyRequest.findByIdAndUpdate(id, buildResponderLocationUpdate(request, locationData), { returnDocument: "after", runValidators: true });
   },
 
-  async updateRequestStatus(id, status, acceptedBy, acceptedByName) {
-    return EmergencyRequest.findByIdAndUpdate(id, buildStatusUpdate(status, acceptedBy, acceptedByName), { returnDocument: "after" });
+  async updateRequestStatus(id, status, extraData = {}, acceptedBy, acceptedByName) {
+    return EmergencyRequest.findByIdAndUpdate(id, buildStatusUpdate(status, acceptedBy, acceptedByName, extraData), { returnDocument: "after" });
   },
 
   async assignPrimaryResponder(id, responderId, responderName, responderRole) {

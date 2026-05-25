@@ -54,8 +54,8 @@ export function buildResponderLocationUpdate(request, locationData) {
   return updateData;
 }
 
-export function buildStatusUpdate(status, acceptedBy, acceptedByName) {
-  const updateData = { status };
+export function buildStatusUpdate(status, acceptedBy, acceptedByName, extraData = {}) {
+  const updateData = { status, ...extraData };
   if (["accepted", "resolved", "cancelled"].includes(status)) {
     Object.assign(updateData, {
       routeStartedAt: null,

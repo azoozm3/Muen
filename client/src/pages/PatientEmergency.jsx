@@ -32,10 +32,7 @@ export default function PatientEmergency() {
       geoState={patientEmergency.geoState}
       hasGpsCoordinates={patientEmergency.hasGpsCoordinates}
       createRequest={patientEmergency.createRequest}
-      paymentDone={patientEmergency.paymentDone}
-      paypalError={patientEmergency.paypalError}
-      handlePayPalSuccess={patientEmergency.handlePayPalSuccess}
-      handlePayPalError={patientEmergency.handlePayPalError}
+      submitEmergency={patientEmergency.submitEmergency}
       navigate={navigate}
     />
   );

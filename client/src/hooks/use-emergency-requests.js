@@ -37,7 +37,7 @@ export function useCreateRequest() {
 export function useUpdateRequestStatus() {
   return useEmergencyMutation({
     fallbackMessage: "Failed to update request status",
-    buildRequest: ({ status, ...payload }) => patchEmergencyRequest(`/api/requests/${ensureRequestId(payload)}/status`, { status }),
+    buildRequest: ({ status, cancelReason, cancelReasonNote, ...payload }) => patchEmergencyRequest(`/api/requests/${ensureRequestId(payload)}/status`, { status, cancelReason, cancelReasonNote }),
   });
 }
 

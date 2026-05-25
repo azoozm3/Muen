@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useCreateRequest, useMyEmergencyRequests, useRequest, useUpdateRequestLocation } from "@/hooks/use-emergency-requests";
 import { ACTIVE_REQUEST_STORAGE_KEY, CLOSED_REQUEST_STATUSES } from "./patientConstants";
 import { useEmergencyActiveRequestId } from "./emergency-hooks/useEmergencyActiveRequestId";
@@ -14,9 +14,6 @@ export function usePatientEmergency({ user, initialRequestId, toast }) {
   const { data: request } = useRequest(activeRequestId);
   const form = usePatientEmergencyForm(patientName);
   const { geoState, hasGpsCoordinates } = usePatientGpsTracking({ activeRequestId, request, form, updateRequestLocation });
-  const [paypalOrderId, setPaypalOrderId] = useState(null);
-  const [paymentDone, setPaymentDone] = useState(false);
-  const [paypalError, setPaypalError] = useState(null);
 
 
   useEffect(() => {
@@ -25,11 +22,7 @@ export function usePatientEmergency({ user, initialRequestId, toast }) {
     }
   }, [request?.status]);
 
-  const submitEmergency = (data, approvedPayPalOrderId = paypalOrderId) => {
-    if (!approvedPayPalOrderId) {
-      setPaypalError("Please complete the $1 payment first.");
-      return;
-    }
+  const submitEmergency = (data) => {
     createRequest.mutate(
       {
         name: data.name || patientName,
@@ -40,7 +33,6 @@ export function usePatientEmergency({ user, initialRequestId, toast }) {
         emergencyType: "Emergency Help",
         description: "",
         urgency: "High",
-        paypalOrderId: approvedPayPalOrderId,
       },
       {
         onSuccess: (newRequest) => {
@@ -50,24 +42,11 @@ export function usePatientEmergency({ user, initialRequestId, toast }) {
           toast({ title: "Emergency Alert Sent", description: "Help has been requested. Stay calm." });
         },
         onError: (error) => {
-          setPaypalOrderId(null);
-          setPaymentDone(false);
           toast({ title: "Failed to send alert", description: error.message, variant: "destructive" });
         },
       },
     );
   };
 
-  const handlePayPalSuccess = (orderID, emergencyData) => {
-    setPaypalOrderId(orderID);
-    setPaymentDone(true);
-    setPaypalError(null);
-    if (emergencyData) submitEmergency(emergencyData, orderID);
-  };
-  const handlePayPalError = (message) => {
-    setPaypalError(message);
-    setPaymentDone(false);
-  };
-
-  return { form, request, createRequest, geoState, hasGpsCoordinates, activeRequestId, setActiveRequestId, submitEmergency, paypalOrderId, paymentDone, paypalError, handlePayPalSuccess, handlePayPalError };
+  return { form, request, createRequest, geoState, hasGpsCoordinates, activeRequestId, setActiveRequestId, submitEmergency };
 }
