@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import session from "express-session";
-import { MongoStore } from "connect-mongo";
+import MongoStore from "connect-mongo";
 import { createServer } from "http";
 import { connectDB } from "./db.js";
 import { hasCustomSessionSecret, serverEnv } from "./config/app-env.js";
