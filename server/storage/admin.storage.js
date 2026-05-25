@@ -58,6 +58,18 @@ export const adminStorageMethods = {
     return ActivityLog.find({}).sort({ createdAt: -1 }).limit(safeLimit).lean();
   },
 
+  async getActivityLogsPage({ page = 1, limit = 25 } = {}) {
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.max(1, Math.min(Number(limit) || 25, 100));
+    const skip = (safePage - 1) * safeLimit;
+    const [logs, total] = await Promise.all([
+      ActivityLog.find({}).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).lean(),
+      ActivityLog.countDocuments({}),
+    ]);
+    const totalPages = Math.max(1, Math.ceil(total / safeLimit));
+    return { logs, page: safePage, limit: safeLimit, total, totalPages, hasNextPage: safePage < totalPages, hasPrevPage: safePage > 1 };
+  },
+
   async updateUserRole(userId, role) {
     return User.findByIdAndUpdate(userId, { role }, { returnDocument: "after" }).lean();
   },

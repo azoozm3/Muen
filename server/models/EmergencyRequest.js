@@ -48,6 +48,13 @@ const responderFields = {
 const reviewFields = {
   reviewSubmitted: { type: Boolean, default: false },
   reviewedAt: optionalDate,
+  cancelReason: {
+    type: String,
+    enum: ["I got help", "Mistake", "No longer needed", "Other", null],
+    default: null,
+  },
+  cancelReasonNote: { type: String, default: null, trim: true },
+  cancelledAt: optionalDate,
 };
 
 const paymentFields = {

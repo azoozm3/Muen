@@ -24,9 +24,14 @@ export function canUpdateEmergencyStatus({ currentRequest, userId, userRole, sta
   return { ok: true };
 }
 
-export async function finalizeEmergencyStatusUpdate({ storage, requestId, status, userId, user, currentRequest, res }) {
-  const updated = await storage.updateRequestStatus(requestId, status);
+export async function finalizeEmergencyStatusUpdate({ storage, requestId, status, cancelReason, cancelReasonNote, userId, user, currentRequest, res }) {
+  if (status === "cancelled" && !cancelReason) return res.status(400).json({ message: "Choose cancel reason" });
+  const updateData = status === "cancelled"
+    ? { cancelReason, cancelReasonNote: cancelReason === "Other" ? (cancelReasonNote || null) : null, cancelledAt: new Date() }
+    : {};
+  const updated = await storage.updateRequestStatus(requestId, status, updateData);
   if (!updated) return res.status(404).json({ message: "Request not found" });
-  await storage.createActivityLog(userId, user.name, `case_${status}`, `Case ${caseLabel(updated || currentRequest, requestId)} status changed to ${status} by ${user.name}`);
+  const reasonSuffix = status === "cancelled" ? ` | Reason: ${updateData.cancelReasonNote || updateData.cancelReason}` : "";
+  await storage.createActivityLog(userId, user.name, `case_${status}`, `Case ${caseLabel(updated || currentRequest, requestId)} status changed to ${status} by ${user.name}${reasonSuffix}`);
   return res.json(updated);
 }

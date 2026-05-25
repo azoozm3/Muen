@@ -75,4 +75,26 @@ export function registerAdminDashboardRoutes(app) {
       res.status(500).json({ message: "Failed to fetch recent activity" });
     }
   });
+
+  app.get("/api/admin/activity-logs", requireAdmin, async (req, res) => {
+    try {
+      const page = Number(req.query.page || 1);
+      const limit = Number(req.query.limit || 25);
+      res.json(await storage.getActivityLogsPage({ page, limit }));
+    } catch (err) {
+      console.error("GET /api/admin/activity-logs error:", err);
+      res.status(500).json({ message: "Failed to fetch activity logs" });
+    }
+  });
+
+  app.get("/api/admin/activity-logs", requireAdmin, async (req, res) => {
+    try {
+      const page = Number(req.query.page || 1);
+      const limit = Number(req.query.limit || 25);
+      res.json(await storage.getActivityLogsPage({ page, limit }));
+    } catch (err) {
+      console.error("GET /api/admin/activity-logs error:", err);
+      res.status(500).json({ message: "Failed to fetch activity logs" });
+    }
+  });
 }

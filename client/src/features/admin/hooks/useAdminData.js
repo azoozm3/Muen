@@ -34,6 +34,10 @@ export function useAdminAnalytics() {
   return useQuery(createAdminQuery(["/api/admin/analytics"], "/api/admin/analytics"));
 }
 
+
+export function useAdminActivityLogs(page = 1, limit = 25) {
+  return useQuery(createAdminQuery(["/api/admin/activity-logs", page, limit], `/api/admin/activity-logs?page=${page}&limit=${limit}`));
+}
 export function useAdminSettings() {
   return useQuery(createAdminQuery(["/api/admin/settings"], "/api/admin/settings"));
 }

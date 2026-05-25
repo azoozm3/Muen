@@ -3,22 +3,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LiveLocationMap } from "@/components/LiveLocationMap";
-import PayPalCheckout from "@/components/payment/PayPalCheckout";
-import { useServiceSettings } from "@/hooks/use-service-settings";
+import { useEffect } from "react";
 
-export function PatientEmergencyForm({ form, geoState, hasGpsCoordinates, createRequest, navigate, paymentDone, paypalError, handlePayPalSuccess, handlePayPalError }) {
-  const { data: serviceSettings } = useServiceSettings();
-  const paypalClientId = serviceSettings?.paymentProvider?.paypalClientIdPublic;
-  const emergencyPricing = serviceSettings?.servicePricing?.emergencyRequest || { price: 1, currency: "USD" };
-  const emergencyPrice = Number(emergencyPricing.price ?? 1).toFixed(2);
-  const emergencyCurrency = emergencyPricing.currency || "USD";
+export function PatientEmergencyForm({ form, geoState, hasGpsCoordinates, createRequest, navigate, submitEmergency }) {
 
   const formValues = form.watch();
   const formReady = Boolean(formValues.location?.trim() && hasGpsCoordinates);
-  const handlePaymentApproved = (orderID) => {
-    form.setValue("paypalOrderId", orderID, { shouldValidate: true });
-    return form.handleSubmit((data) => handlePayPalSuccess(orderID, { ...data, paypalOrderId: orderID }))();
-  };
+  useEffect(() => {
+    form.setValue("paypalOrderId", null, { shouldValidate: false });
+  }, [form]);
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-xl">
@@ -38,7 +31,7 @@ export function PatientEmergencyForm({ form, geoState, hasGpsCoordinates, create
 
         <div className="rounded-2xl border bg-white p-6 shadow-lg sm:p-8">
           <Form {...form}>
-            <form onSubmit={(event) => event.preventDefault()} className="space-y-6">
+            <form onSubmit={form.handleSubmit(submitEmergency)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="location"
@@ -86,19 +79,9 @@ export function PatientEmergencyForm({ form, geoState, hasGpsCoordinates, create
                 />
               ) : null}
 
-              <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
-                <p className="text-sm font-medium">A <span className="font-bold text-primary">${emergencyPrice} {emergencyCurrency}</span> fee is required to submit an emergency request.</p>
-                {createRequest.isPending ? (
-                  <div className="flex items-center justify-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-3 text-sm font-medium text-green-700">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Sending emergency request...
-                  </div>
-                ) : paymentDone ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2"><span className="text-sm font-medium text-green-600">✓ Payment confirmed, sending request</span></div>
-                ) : (
-                  <PayPalCheckout clientId={paypalClientId} serviceKey="emergencyRequest" currency={emergencyCurrency} disabled={!formReady || createRequest.isPending} validate={() => formReady} onApproved={handlePaymentApproved} onError={handlePayPalError} />
-                )}
-                {paypalError ? <p className="text-sm text-destructive">{paypalError}</p> : null}
-              </div>
+              <Button type="submit" className="w-full" disabled={!formReady || createRequest.isPending}>
+                {createRequest.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending emergency request...</> : "Send Emergency Help Request"}
+              </Button>
             </form>
           </Form>
         </div>

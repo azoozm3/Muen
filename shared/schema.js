@@ -99,7 +99,7 @@ export const insertEmergencyRequestSchema = z.object({
   urgency: z.string().optional().nullable().default("High"),
   latitude: z.number().min(-90).max(90).optional().nullable(),
   longitude: z.number().min(-180).max(180).optional().nullable(),
-  paypalOrderId: z.string().min(1, "PayPal payment is required"),
+  paypalOrderId: z.string().min(1).optional().nullable(),
 });
 
 export const adminUpdateUserSchema = z.object({

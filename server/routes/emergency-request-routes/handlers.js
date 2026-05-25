@@ -1,11 +1,9 @@
 import { Review } from "../../models/Review.js";
 import { EmergencyRequest } from "../../models/EmergencyRequest.js";
 import { caseLabel, getCurrentUser, sendZodError } from "../helpers.js";
-import { createEmergencyRequestSchema, emergencyReviewSchema, requestLocationSchema, requestStatusSchema, responderLocationSchema } from "./schemas.js";
+import { createEmergencyRequestSchema, emergencyReviewSchema, requestLocationSchema, requestStatusUpdateSchema, responderLocationSchema } from "./schemas.js";
 import { attachEmergencyPatientRatings } from "./reviewHelpers.js";
 import { acceptEmergencyCase, canUpdateEmergencyStatus, finalizeEmergencyStatusUpdate } from "./statusHelpers.js";
-import { consumeCapturedPayment } from "../payment.routes.js";
-import { saveSession } from "../../services/payment-session.service.js";
 
 export function createEmergencyRequestHandlers(storage) {
   return {
@@ -23,31 +21,35 @@ export function createEmergencyRequestHandlers(storage) {
     create: async (req, res) => {
       try {
         const parsed = createEmergencyRequestSchema.parse(req.body);
-        const { paypalOrderId, ...emergencyFields } = parsed;
-        if (!paypalOrderId) return res.status(400).json({ message: "PayPal payment is required." });
-        const existing = await EmergencyRequest.findOne({ paypalOrderId }).select("_id").lean();
-        if (existing) {
-          return res.status(409).json({ message: "This PayPal order has already been used." });
+        const emergencyFields = parsed;
+        const patientId = req.session.userId || null;
+        if (patientId) {
+          const activeRequest = await EmergencyRequest.findOne({
+            patientId,
+            status: { $in: ["pending", "accepted", "on_the_way", "arrived"] },
+          }).lean();
+          if (activeRequest) return res.status(400).json({ message: "You already have one active emergency request." });
+
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          const recentRequest = await EmergencyRequest.findOne({ patientId, createdAt: { $gte: fiveMinutesAgo } }).lean();
+          if (recentRequest) return res.status(429).json({ message: "Please wait 5 minutes before sending another help request." });
+
+          const startOfDay = new Date();
+          startOfDay.setHours(0, 0, 0, 0);
+          const todayCount = await EmergencyRequest.countDocuments({ patientId, createdAt: { $gte: startOfDay } });
+          if (todayCount >= 5) {
+            return res.status(429).json({ message: "Daily limit reached. You can send up to 5 help requests per day." });
+          }
         }
-        let capturedPayment;
-        try {
-          capturedPayment = consumeCapturedPayment(req, paypalOrderId, "emergencyRequest");
-        } catch (error) {
-          console.error("Emergency payment session error:", error);
-          return res.status(402).json({ message: error.message || "Payment failed. Please try again." });
-        }
-        const payment = capturedPayment?.payment || {};
-        const pricing = capturedPayment?.pricing || {};
+
         const request = await storage.createRequest({
           ...emergencyFields,
-          paypalOrderId: payment.providerOrderId || paypalOrderId,
-          paypalCaptureId: payment.captureId || payment.paymentRef || null,
-          paypalStatus: payment.status || "captured",
-          paypalAmount: String(payment.grossAmount ?? pricing.grossAmount ?? "1.00"),
-          paypalCurrency: payment.currency || pricing.currency || "USD",
-          paymentVerified: true,
-        }, req.session.userId || null);
-        await saveSession(req);
+          paypalOrderId: null,
+          paypalCaptureId: null,
+          paypalStatus: null,
+          paypalAmount: null,
+          paymentVerified: false,
+        }, patientId);
         await storage.createActivityLog(req.session.userId || null, null, "case_created", `Emergency case ${caseLabel(request, request.id)} created: ${request.emergencyType}`);
         res.status(201).json(request);
       } catch (err) {
@@ -112,7 +114,7 @@ export function createEmergencyRequestHandlers(storage) {
 
     updateStatus: async (req, res) => {
       try {
-        const { status } = requestStatusSchema.parse(req.body);
+        const { status, cancelReason, cancelReasonNote } = requestStatusUpdateSchema.parse(req.body);
         const requestId = req.params.id;
         const currentRequest = await storage.getRequest(requestId);
         if (!currentRequest) return res.status(404).json({ message: "Request not found" });
@@ -129,7 +131,7 @@ export function createEmergencyRequestHandlers(storage) {
 
         const permission = canUpdateEmergencyStatus({ currentRequest, userId, userRole, status });
         if (!permission.ok) return res.status(permission.code).json({ message: permission.message });
-        return finalizeEmergencyStatusUpdate({ storage, requestId, status, userId, user, currentRequest, res });
+        return finalizeEmergencyStatusUpdate({ storage, requestId, status, cancelReason, cancelReasonNote, userId, user, currentRequest, res });
       } catch (err) {
         return sendZodError(res, err);
       }
