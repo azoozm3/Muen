@@ -17,8 +17,24 @@ const MongoStore =
   connectMongo.MongoStore ||
   connectMongo.default?.MongoStore ||
   connectMongo.default ||
-  connectMongo; 
+  connectMongo;
 
+function createSessionStore() {
+  const options = {
+    mongoUrl: serverEnv.mongoUri,
+    collectionName: "sessions",
+  };
+
+  if (MongoStore && typeof MongoStore.create === "function") {
+    return MongoStore.create(options);
+  }
+
+  if (typeof MongoStore === "function") {
+    return new MongoStore(options);
+  }
+
+  throw new Error("Unable to initialize connect-mongo session store");
+}
 if (runtimeIsProduction && !hasCustomSessionSecret) {
   throw new Error("SESSION_SECRET must be configured in production");
 }
@@ -40,16 +56,12 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/api/health", (req, res) => {
   res.status(200).json({ ok: true });
 });
-
 app.use(
   session({
     secret: serverEnv.sessionSecret,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: serverEnv.mongoUri,
-      collectionName: "sessions",
-    }),
+    store: createSessionStore(),
     cookie: {
       httpOnly: true,
       secure: runtimeIsProduction,
