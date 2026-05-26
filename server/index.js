@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import session from "express-session";
-import MongoStore from "connect-mongo";
+import * as connectMongo from "connect-mongo";
 import { createServer } from "http";
 import { connectDB } from "./db.js";
 import { hasCustomSessionSecret, serverEnv } from "./config/app-env.js";
@@ -12,6 +12,12 @@ import { apiRateLimit, csrfProtection } from "./middleware/security.js";
 const app = express();
 const httpServer = createServer(app);
 const runtimeIsProduction = process.env.NODE_ENV === "production";
+
+const MongoStore =
+  connectMongo.MongoStore ||
+  connectMongo.default?.MongoStore ||
+  connectMongo.default ||
+  connectMongo; 
 
 if (runtimeIsProduction && !hasCustomSessionSecret) {
   throw new Error("SESSION_SECRET must be configured in production");
