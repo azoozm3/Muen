@@ -120,7 +120,7 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
+async function startServer() {
   await connectDB();
   await registerRoutes(httpServer, app);
 
@@ -142,4 +142,10 @@ app.use((req, res, next) => {
   httpServer.listen(serverEnv.port, "0.0.0.0", () => {
     log(`serving on port ${serverEnv.port}`);
   });
-})();
+}
+
+startServer().catch((error) => {
+  console.error("Failed to start server:");
+  console.error(error);
+  process.exit(1);
+});
