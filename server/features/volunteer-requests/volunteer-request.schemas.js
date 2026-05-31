@@ -3,6 +3,8 @@ import { volunteerServiceOptions } from "../../../shared/volunteer.js";
 
 export const createVolunteerRequestSchema = z.object({
   serviceType: z.enum(volunteerServiceOptions),
+  requestedDate: z.string().min(1, "Date is required"),
+  requestedTime: z.string().min(1, "Time is required"),
   address: z.string().min(1, "Location is required"),
   locationNote: z.string().trim().max(200).optional().default(""),
   details: z.string().trim().max(500).optional().default(""),

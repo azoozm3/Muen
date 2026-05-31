@@ -1,3 +1,4 @@
+import { getTodayLocal } from "@/lib/timeUtils";
 import { volunteerServices } from "@/features/volunteer-requests/volunteerUtils";
 
 const ACTIVE_STATUSES = new Set(["pending", "accepted", "in_progress"]);
@@ -8,6 +9,8 @@ export const INITIAL_VOLUNTEER_REQUEST_FORM = {
   patientPhone: "",
   serviceType: volunteerServices[0],
   urgency: "medium",
+  requestedDate: getTodayLocal(),
+  requestedTime: "",
   address: "",
   latitude: null,
   longitude: null,
