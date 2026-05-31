@@ -4,8 +4,8 @@ import { fetchJson } from "@/lib/queryClient";
 
 const APPOINTMENTS_KEY = ["/api/appointments"];
 
-async function fetchAppointments() {
-  return fetchJson("/api/appointments", "Failed to fetch appointments");
+async function fetchAppointments({ signal } = {}) {
+  return fetchJson("/api/appointments", "Failed to fetch appointments", { signal });
 }
 
 export function usePatientAppointments() {

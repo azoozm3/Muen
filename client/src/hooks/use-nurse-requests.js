@@ -13,7 +13,7 @@ function invalidateNurseRequests() {
 export function useNurseRequests() {
   return useQuery({
     queryKey: QUERY_KEY,
-    queryFn: () => fetchJson("/api/nurse-requests", "Failed to fetch nurse requests"),
+    queryFn: ({ signal }) => fetchJson("/api/nurse-requests", "Failed to fetch nurse requests", { signal }),
     select: normalizeNurseRequests,
     ...liveQueryOptions(),
   });

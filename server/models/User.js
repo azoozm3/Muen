@@ -68,4 +68,7 @@ const userSchema = new mongoose.Schema(
   defaultSchemaOptions,
 );
 
+userSchema.index({ role: 1, active: 1, specialty: 1, onlineConsultation: 1, rating: -1, createdAt: -1 });
+userSchema.index({ role: 1, active: 1, name: 1, createdAt: -1 });
+
 export const User = mongoose.models.User || mongoose.model("User", userSchema);

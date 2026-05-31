@@ -2,6 +2,7 @@ import { ZodError } from "zod";
 import storage from "../../../storage/index.js";
 import { requireAdmin, sendZodError } from "../../../routes/helpers.js";
 import { markProviderPayoutsAsPaid } from "../../../services/admin-dashboard/index.js";
+import { ensureAppSettings, toPublicSettings } from "../../../services/app-settings.service.js";
 import { markProviderPayoutSchema, updateServiceSettingsSchema } from "../adminSchemas.js";
 
 export function registerAdminSettingsRoutes(app) {
@@ -22,8 +23,8 @@ export function registerAdminSettingsRoutes(app) {
 
   app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
     try {
-      const stats = await storage.getStats();
-      res.json({ servicePricing: stats.finance.servicePricing });
+      const settings = await ensureAppSettings();
+      res.json({ servicePricing: toPublicSettings(settings).servicePricing });
     } catch (err) {
       console.error("GET /api/admin/settings error:", err);
       res.status(500).json({ message: "Failed to fetch admin settings" });

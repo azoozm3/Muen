@@ -20,7 +20,7 @@ export function useDoctorsDirectory() {
 
   const doctorsQuery = useQuery({
     queryKey: ["/api/doctors", selectedSpecialty, searchQuery, minRating, onlineOnly],
-    queryFn: () => fetchJson(`/api/doctors?${queryString}`, "Failed to fetch doctors"),
+    queryFn: ({ signal }) => fetchJson(`/api/doctors?${queryString}`, "Failed to fetch doctors", { signal }),
     staleTime: 10000,
   });
 

@@ -68,6 +68,7 @@ export function buildDoctorsQuery(filters = {}) {
   const query = { role: "doctor", active: true };
   if (filters.onlineConsultation) query.onlineConsultation = true;
   if (filters.specialty) query.specialty = filters.specialty;
+  if (filters.minRating) query.rating = { $gte: Number(filters.minRating) };
   if (filters.search) query.name = { $regex: filters.search, $options: "i" };
   return query;
 }

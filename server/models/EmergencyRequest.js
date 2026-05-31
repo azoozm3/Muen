@@ -79,4 +79,7 @@ const emergencyRequestSchema = new mongoose.Schema(
   defaultSchemaOptions,
 );
 
+emergencyRequestSchema.index({ patientId: 1, status: 1, createdAt: -1 });
+emergencyRequestSchema.index({ status: 1, createdAt: -1 });
+
 export const EmergencyRequest = mongoose.models.EmergencyRequest || mongoose.model("EmergencyRequest", emergencyRequestSchema);

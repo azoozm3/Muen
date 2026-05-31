@@ -108,4 +108,8 @@ const nurseRequestSchema = new mongoose.Schema(
   defaultSchemaOptions,
 );
 
+nurseRequestSchema.index({ patientId: 1, status: 1, createdAt: -1 });
+nurseRequestSchema.index({ nurseId: 1, status: 1, createdAt: -1 });
+nurseRequestSchema.index({ status: 1, createdAt: -1 });
+
 export const NurseRequest = mongoose.models.NurseRequest || mongoose.model("NurseRequest", nurseRequestSchema);

@@ -4,7 +4,7 @@ import { liveQueryOptions } from "@/lib/liveQuery";
 
 const createAdminQuery = (key, url, extras = {}) => ({
   queryKey: key,
-  queryFn: () => fetchJson(url, `Failed to load ${url}`),
+  queryFn: ({ signal }) => fetchJson(url, `Failed to load ${url}`, { signal }),
   ...liveQueryOptions(),
   ...extras,
 });

@@ -7,10 +7,11 @@ function createPrivateQuery(queryKey, endpoint, enabled) {
   return useQuery({
     queryKey,
     enabled,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       try {
-        return await fetchJson(endpoint, `Failed to load ${endpoint}`);
-      } catch {
+        return await fetchJson(endpoint, `Failed to load ${endpoint}`, { signal });
+      } catch (error) {
+        if (error?.name === "AbortError") throw error;
         return [];
       }
     },

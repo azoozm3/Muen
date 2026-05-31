@@ -56,17 +56,20 @@ export async function apiRequest(method, url, data) {
   return res;
 }
 
-export async function fetchJson(url, fallbackMessage = "Failed to load data") {
-  const response = await fetch(url, { credentials: "include" });
+export async function fetchJson(url, fallbackMessage = "Failed to load data", init = {}) {
+  const response = await fetch(url, {
+    ...init,
+    credentials: init.credentials || "include",
+  });
   return readJsonResponse(response, fallbackMessage);
 }
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: async ({ queryKey }) => {
+      queryFn: async ({ queryKey, signal }) => {
         const [url] = queryKey;
-        const res = await fetch(url, { credentials: "include" });
+        const res = await fetch(url, { credentials: "include", signal });
 
         if (res.status === 401) {
           return null;
@@ -84,8 +87,8 @@ export const queryClient = new QueryClient({
       retry: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      refetchIntervalInBackground: true,
-      refetchInterval: (query) => (query.meta?.live === false ? false : LIVE_QUERY_INTERVAL),
+      refetchIntervalInBackground: false,
+      refetchInterval: (query) => (query.meta?.live === true ? LIVE_QUERY_INTERVAL : false),
       placeholderData: (previousData) => previousData,
     },
     mutations: {

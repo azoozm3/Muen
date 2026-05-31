@@ -49,9 +49,10 @@ export const userStorageMethods = {
   },
 
   async getDoctors(filters) {
-    let results = await User.find(buildDoctorsQuery(filters)).sort({ rating: -1, createdAt: -1 });
-    if (filters?.minRating) results = results.filter((d) => d.rating !== null && Number(d.rating) >= Number(filters.minRating));
-    return results;
+    return User.find(buildDoctorsQuery(filters))
+      .select("-passwordHash -medicalHistory -medicalPdfUrl")
+      .sort({ rating: -1, createdAt: -1 })
+      .lean();
   },
 
   async createActivityLog(userIdOrPayload, userName, action, details) {
