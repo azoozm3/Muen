@@ -1,5 +1,13 @@
 import { PAYPAL_API_BASE, requirePaypalConfig } from "./paypalConfig.js";
 
+async function parseJsonOrEmpty(response) {
+  try {
+    return await response.json();
+  } catch (error) {
+    return {};
+  }
+}
+
 export async function getPaypalAccessToken() {
   const { clientId, clientSecret } = requirePaypalConfig();
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
@@ -9,7 +17,7 @@ export async function getPaypalAccessToken() {
     body: "grant_type=client_credentials",
   });
 
-  const json = await response.json().catch(() => ({}));
+  const json = await parseJsonOrEmpty(response);
   if (!response.ok) throw new Error(json?.error_description || json?.error || "Failed to get PayPal access token");
   return json.access_token;
 }
@@ -25,6 +33,6 @@ export async function paypalPost(path, accessToken, body) {
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
 
-  const json = await response.json().catch(() => ({}));
+  const json = await parseJsonOrEmpty(response);
   return { response, json };
 }

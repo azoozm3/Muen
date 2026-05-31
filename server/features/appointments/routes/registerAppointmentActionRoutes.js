@@ -27,7 +27,6 @@ export function registerAppointmentActionRoutes(app) {
       res.json(updated);
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/appointments/:id/respond error:", err);
       const handled = appointmentErrorResponse(res, err, err.message || "Failed to update appointment");
       if (handled) return handled;
     }
@@ -40,7 +39,6 @@ export function registerAppointmentActionRoutes(app) {
       res.json(await cancelAppointmentForPatient({ appointmentId: req.params.id, patientId: req.session.userId, reason: parsed.reason }));
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/appointments/:id/cancel error:", err);
       const handled = appointmentErrorResponse(res, err, "Failed to cancel appointment");
       if (handled) return handled;
     }
@@ -54,7 +52,6 @@ export function registerAppointmentActionRoutes(app) {
       res.json(updated);
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/appointments/:id/status error:", err);
       const handled = appointmentErrorResponse(res, err, "Failed to update appointment status");
       if (handled) return handled;
     }
@@ -69,7 +66,6 @@ export function registerAppointmentActionRoutes(app) {
       res.json(updated);
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/appointments/:id/notes error:", err);
       const handled = appointmentErrorResponse(res, err, "Failed to save appointment notes");
       if (handled) return handled;
     }
@@ -84,7 +80,6 @@ export function registerAppointmentActionRoutes(app) {
       res.status(201).json(review);
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("POST /api/appointments/:id/review error:", err);
       const handled = appointmentErrorResponse(res, err, "Failed to submit review");
       if (handled) return handled;
     }

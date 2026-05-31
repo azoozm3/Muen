@@ -1,6 +1,7 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import { serverEnv } from "./config/app-env.js";
+import { TIMEOUTS } from "../shared/constants.js";
 
 export async function connectDB() {
   if (!serverEnv.mongoUri) {
@@ -12,10 +13,8 @@ export async function connectDB() {
 
   await mongoose.connect(serverEnv.mongoUri, {
     dbName: serverEnv.mongoDbName,
-    serverSelectionTimeoutMS: 10000,
-    connectTimeoutMS: 10000,
-    socketTimeoutMS: 45000,
+    serverSelectionTimeoutMS: TIMEOUTS.API_REQUEST,
+    connectTimeoutMS: TIMEOUTS.API_REQUEST,
+    socketTimeoutMS: TIMEOUTS.API_REQUEST,
   });
-
-  console.log(`MongoDB connected (${serverEnv.mongoDbName})`);
 }

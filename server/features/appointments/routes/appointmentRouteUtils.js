@@ -19,6 +19,10 @@ export function appointmentErrorResponse(res, error, fallbackMessage) {
 }
 
 export async function safeActivityLog(userId, actorName, action, details, warningLabel) {
-  try { await storage.createActivityLog(userId, actorName, action, details); }
-  catch (logError) { console.warn(`${warningLabel} warning`, logError?.message || logError); }
+  try {
+    await storage.createActivityLog(userId, actorName, action, details);
+  } catch (error) {
+    return { warning: warningLabel, message: error?.message || "Activity log failed" };
+  }
+  return null;
 }

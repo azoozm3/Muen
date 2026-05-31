@@ -15,7 +15,6 @@ export function registerNurseCreateRoutes(app) {
       const request = await createRequestFromBody(req, parsed.data);
       res.status(201).json(serializeNurseRequest(request));
     } catch (error) {
-      console.error("POST /api/nurse-requests error:", error);
       res.status(500).json({ message: error?.message || "Failed to create nurse request" });
     }
   });

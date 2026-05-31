@@ -16,7 +16,6 @@ export function registerVolunteerReadRoutes(app) {
       const items = await VolunteerRequest.find(query).sort({ createdAt: -1 }).lean();
       res.json(items.map(serializeVolunteerRequest));
     } catch (err) {
-      console.error("GET /api/volunteer-requests error:", err);
       res.status(500).json({ message: err.message || "Failed to fetch volunteer requests" });
     }
   });

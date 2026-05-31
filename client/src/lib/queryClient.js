@@ -1,7 +1,16 @@
 import { QueryClient } from "@tanstack/react-query";
 import { LIVE_QUERY_INTERVAL, LIVE_QUERY_STALE_TIME } from "@/lib/liveQuery";
+import { TIMEOUTS } from "@shared/constants";
 
 let csrfTokenCache = null;
+
+async function parseJsonOrNull(response) {
+  try {
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+}
 
 async function throwIfResNotOk(res) {
   if (!res.ok) {
@@ -10,7 +19,7 @@ async function throwIfResNotOk(res) {
   }
 }
 
-async function fetchWithTimeout(url, init = {}, timeoutMs = 15000) {
+async function fetchWithTimeout(url, init = {}, timeoutMs = TIMEOUTS.API_REQUEST) {
   const { signal: externalSignal, ...fetchInit } = init;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -34,7 +43,7 @@ async function fetchWithTimeout(url, init = {}, timeoutMs = 15000) {
 }
 
 export async function readJsonResponse(response, fallbackMessage = "Request failed") {
-  const payload = await response.json().catch(() => null);
+  const payload = await parseJsonOrNull(response);
   if (!response.ok) {
     throw new Error(payload?.message || fallbackMessage);
   }
@@ -46,7 +55,7 @@ async function getCsrfToken() {
 
   const res = await fetchWithTimeout("/api/auth/csrf-token", { credentials: "include" });
   if (!res.ok) return null;
-  const payload = await res.json().catch(() => null);
+  const payload = await parseJsonOrNull(res);
   csrfTokenCache = payload?.csrfToken || null;
   return csrfTokenCache;
 }
@@ -80,7 +89,7 @@ export async function apiRequest(method, url, data) {
 }
 
 export async function fetchJson(url, fallbackMessage = "Failed to load data", init = {}) {
-  const { timeoutMs = 15000, ...fetchInit } = init;
+  const { timeoutMs = TIMEOUTS.API_REQUEST, ...fetchInit } = init;
 
   try {
     const response = await fetchWithTimeout(

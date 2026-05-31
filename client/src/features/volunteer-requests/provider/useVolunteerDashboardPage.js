@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAcceptVolunteerRequest, useRateVolunteerPatient, useUpdateVolunteerRequestStatus, useVolunteerRequests } from "@/hooks/use-volunteer-requests";
+import { REQUEST_STATUS } from "@shared/constants";
 
 export function useVolunteerDashboardPage(userId) {
   const { toast } = useToast();
@@ -9,9 +10,9 @@ export function useVolunteerDashboardPage(userId) {
   const statusMutation = useUpdateVolunteerRequestStatus();
   const rateMutation = useRateVolunteerPatient();
 
-  const available = useMemo(() => data.filter((item) => item.status === "pending"), [data]);
-  const active = useMemo(() => data.filter((item) => String(item.volunteerId) === String(userId) && ["accepted", "in_progress"].includes(item.status)), [data, userId]);
-  const history = useMemo(() => data.filter((item) => String(item.volunteerId) === String(userId) && ["completed", "cancelled"].includes(item.status)), [data, userId]);
+  const available = useMemo(() => data.filter((item) => item.status === REQUEST_STATUS.PENDING), [data]);
+  const active = useMemo(() => data.filter((item) => String(item.volunteerId) === String(userId) && [REQUEST_STATUS.ACCEPTED, REQUEST_STATUS.IN_PROGRESS].includes(item.status)), [data, userId]);
+  const history = useMemo(() => data.filter((item) => String(item.volunteerId) === String(userId) && [REQUEST_STATUS.COMPLETED, REQUEST_STATUS.CANCELLED].includes(item.status)), [data, userId]);
 
   async function withToast(action, successTitle, failureTitle) {
     try {
@@ -33,7 +34,7 @@ export function useVolunteerDashboardPage(userId) {
     statusPending: statusMutation.isPending,
     ratePending: rateMutation.isPending,
     acceptRequest: (id) => withToast(() => acceptMutation.mutateAsync({ id }), "Request accepted", "Could not accept request"),
-    updateStatus: (id, status) => withToast(() => statusMutation.mutateAsync({ id, body: { status } }), status === "completed" ? "Request completed" : "Request updated", "Could not update request"),
+    updateStatus: (id, status) => withToast(() => statusMutation.mutateAsync({ id, body: { status } }), status === REQUEST_STATUS.COMPLETED ? "Request completed" : "Request updated", "Could not update request"),
     ratePatient: (id, body) => withToast(() => rateMutation.mutateAsync({ id, body }), "Patient rating saved", "Could not save rating"),
   };
 }

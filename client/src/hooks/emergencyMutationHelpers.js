@@ -1,8 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
+async function parseJsonOrNull(response) {
+  try {
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+}
+
 export async function readJson(response, fallbackMessage) {
-  const payload = await response.json().catch(() => null);
+  const payload = await parseJsonOrNull(response);
   if (!response.ok) throw new Error(payload?.message || fallbackMessage);
   return payload;
 }

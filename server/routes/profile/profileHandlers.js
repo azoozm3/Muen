@@ -75,7 +75,6 @@ export function createProfileHandlers(storage) {
         await storage.updateProfile(req.session.userId, { medicalRecordAcknowledged: true });
         return res.json({ medicalRecordAcknowledged: true });
       } catch (error) {
-        console.error("acknowledge medical record error:", error);
         return res.status(500).json({ message: "Failed to acknowledge medical record" });
       }
     },
@@ -92,7 +91,6 @@ export function createProfileHandlers(storage) {
         const updated = await storage.updateProfile(req.session.userId, { medicalPdfUrl: fileDataUri });
         return res.json({ success: true, medicalPdfUrl: updated?.medicalPdfUrl ? "uploaded" : null });
       } catch (error) {
-        console.error("upload medical pdf error:", error);
         return res.status(500).json({ message: "Failed to upload medical PDF" });
       }
     },

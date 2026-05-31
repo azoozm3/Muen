@@ -8,7 +8,6 @@ export function registerAdminUserRoutes(app) {
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try { res.json(await getAdminUsersData(req.query.role || "all")); }
     catch (err) {
-      console.error("GET /api/admin/users error:", err);
       res.status(500).json({ message: "Failed to fetch users" });
     }
   });
@@ -20,7 +19,6 @@ export function registerAdminUserRoutes(app) {
       res.json(user);
     } catch (err) {
       if (err instanceof ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/admin/users/:id error:", err);
       res.status(500).json({ message: "Failed to update user" });
     }
   });
@@ -31,7 +29,6 @@ export function registerAdminUserRoutes(app) {
       if (!user) return res.status(404).json({ message: "User not found" });
       res.json({ success: true });
     } catch (err) {
-      console.error("DELETE /api/admin/users/:id error:", err);
       res.status(500).json({ message: "Failed to delete user" });
     }
   });
@@ -43,7 +40,6 @@ export function registerAdminUserRoutes(app) {
       res.json(user);
     } catch (err) {
       if (err instanceof ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/admin/users/:id/role error:", err);
       res.status(500).json({ message: "Failed to update user role" });
     }
   });
@@ -56,7 +52,6 @@ export function registerAdminUserRoutes(app) {
       res.json(user);
     } catch (err) {
       if (err instanceof ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/admin/users/:id/status error:", err);
       res.status(500).json({ message: "Failed to update user status" });
     }
   });

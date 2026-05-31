@@ -4,18 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useGlobalPopups } from "@/context/GlobalPopupsContext";
+import { useToast } from "@/hooks/use-toast";
 
 export function Navbar() {
   const [location, navigate] = useLocation();
   const { user, isLoading, isAuthenticated, signOut, signOutPending } = useAuth();
   const popups = useGlobalPopups();
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
       await signOut();
       navigate("/");
     } catch (error) {
-      console.error("Sign out failed:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
     }
   };
 

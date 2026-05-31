@@ -18,7 +18,6 @@ export function registerAppointmentCreateRoutes(app) {
       res.status(201).json(appointment);
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("POST /api/appointments error:", err);
       const handled = appointmentErrorResponse(res, err, err.message || "Failed to create appointment");
       if (handled) return handled;
     }

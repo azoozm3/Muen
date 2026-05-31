@@ -31,7 +31,6 @@ export function registerVolunteerRatingRoutes(app, { storage }) {
       res.json(serializeVolunteerRequest(requestDoc));
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("POST /api/volunteer-requests/:id/patient-rating error:", err);
       res.status(500).json({ message: err.message || "Failed to save volunteer rating" });
     }
   });
@@ -61,7 +60,6 @@ export function registerVolunteerRatingRoutes(app, { storage }) {
       res.json(serializeVolunteerRequest(requestDoc));
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("POST /api/volunteer-requests/:id/volunteer-rating error:", err);
       res.status(500).json({ message: err.message || "Failed to save patient rating" });
     }
   });
