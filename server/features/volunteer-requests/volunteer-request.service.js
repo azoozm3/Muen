@@ -18,6 +18,8 @@ export function serializeVolunteerRequest(doc) {
     patientName: item.patientName || "",
     patientPhone: item.patientPhone || "",
     serviceType: item.serviceType || "",
+    requestedDate: item.requestedDate || "",
+    requestedTime: item.requestedTime || "",
     address: item.address || "",
     latitude: item.latitude ?? null,
     longitude: item.longitude ?? null,
