@@ -9,6 +9,4 @@ export const DEFAULT_FORM = {
   locationLng: "",
 };
 
-export function getToday() {
-  return new Date().toISOString().slice(0, 10);
-}
+export { getTodayLocal as getToday } from "@/lib/timeUtils";

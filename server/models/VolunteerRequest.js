@@ -10,6 +10,8 @@ const volunteerRequestSchema = new mongoose.Schema(
     patientName: { type: String, required: true, trim: true },
     patientPhone: { type: String, default: "", trim: true },
     serviceType: { type: String, required: true, trim: true },
+    requestedDate: { type: String, default: "", trim: true },
+    requestedTime: { type: String, default: "", trim: true },
     address: { type: String, required: true, trim: true },
     latitude: { type: Number, default: null },
     longitude: { type: Number, default: null },
