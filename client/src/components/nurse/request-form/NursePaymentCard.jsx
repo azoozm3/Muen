@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import PayPalCheckout from "@/components/payment/PayPalCheckout";
 
 export function NursePaymentCard({ pricing, paypalClientId, canSubmit, isPastSchedule, isSubmitting, isGettingLocation, form, validate, onApproved, onError }) {
+export function NursePaymentCard({ pricing, paypalClientId, canSubmit, isSubmitting, isGettingLocation, form, validate, onApproved, onError }) {
   const currency = pricing?.currency || "USD";
   const providerNet = pricing?.providerNet ?? ((pricing?.price ?? 10) - (pricing?.platformFee ?? 3));
 

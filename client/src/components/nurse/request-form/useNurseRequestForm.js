@@ -19,6 +19,7 @@ export function useNurseRequestForm({ toast }) {
         form.requestedTime &&
         form.address.trim() &&
         !isPastSchedule,
+        !isPastDateTime(form.requestedDate, form.requestedTime),
       ),
     [form, isPastSchedule],
   );

@@ -24,6 +24,18 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
     return canSubmit;
   };
 
+  const validateSchedule = () => {
+    if (isPastDateTime(form.requestedDate, form.requestedTime)) {
+      toast({
+        title: "Choose a future time",
+        description: "Nurse requests cannot be scheduled in the past.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return canSubmit;
+  };
+
   const finalizeRequest = async (paymentOrderId) => {
     await onSubmit({
       serviceType: form.serviceType,

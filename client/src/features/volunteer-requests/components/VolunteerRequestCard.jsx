@@ -2,6 +2,7 @@ import { MapPin, Phone } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProfileLink } from "@/components/common/ProfileLink";
 import { formatRequestDate, formatRequestTime } from "@/features/nurse-requests/shared/nurseRequestDateTime";
+import { formatRequestDate, formatRequestDay, formatRequestTime } from "@/features/nurse-requests/shared/nurseRequestDateTime";
 import { getVolunteerStatusMeta } from "@/features/volunteer-requests/volunteerUtils";
 
 const urgencyClasses = {
@@ -46,6 +47,7 @@ export function VolunteerRequestCard({ item, children, showVolunteer = true, sho
             {showPatient && item.patientName ? <p className="font-medium text-foreground">{item.patientId ? <ProfileLink id={item.patientId} role="patient" className="font-medium">{item.patientName}</ProfileLink> : item.patientName}</p> : null}
             {showPatient && item.patientPhone ? <p className="flex items-center gap-2 break-all"><Phone className="h-4 w-4 shrink-0" /> {item.patientPhone}</p> : null}
             {item.requestedDate ? <p><strong>Date:</strong> {formatRequestDate(item.requestedDate)} · <strong>Time:</strong> {formatRequestTime(item.requestedTime, item.requestedDate)}</p> : null}
+            {item.requestedDate ? <p><strong>Day:</strong> {formatRequestDay(item.requestedDate)} · <strong>Date:</strong> {formatRequestDate(item.requestedDate)} · <strong>Time:</strong> {formatRequestTime(item.requestedTime, item.requestedDate)}</p> : null}
             <VolunteerLocationDetails item={item} />
             {item.details ? <p className="whitespace-pre-wrap break-words">{item.details}</p> : null}
             {showVolunteer && item.volunteerName ? <p>Volunteer: {item.volunteerId ? <ProfileLink id={item.volunteerId} role="volunteer" className="font-medium text-foreground">{item.volunteerName}</ProfileLink> : <span className="font-medium text-foreground">{item.volunteerName}</span>}</p> : null}
