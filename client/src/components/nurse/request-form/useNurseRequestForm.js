@@ -9,6 +9,8 @@ export function useNurseRequestForm({ toast }) {
   }));
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
+  const isPastSchedule = useMemo(() => isPastDateTime(form.requestedDate, form.requestedTime), [form.requestedDate, form.requestedTime]);
+
   const canSubmit = useMemo(
     () =>
       Boolean(
@@ -16,9 +18,10 @@ export function useNurseRequestForm({ toast }) {
         form.requestedDate &&
         form.requestedTime &&
         form.address.trim() &&
+        !isPastSchedule,
         !isPastDateTime(form.requestedDate, form.requestedTime),
       ),
-    [form],
+    [form, isPastSchedule],
   );
 
   const updateField = (key, value) =>
@@ -76,6 +79,7 @@ export function useNurseRequestForm({ toast }) {
   return {
     form,
     canSubmit,
+    isPastSchedule,
     isGettingLocation,
     updateField,
     resetForm,

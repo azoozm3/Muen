@@ -2,6 +2,7 @@ import { CreditCard, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import PayPalCheckout from "@/components/payment/PayPalCheckout";
 
+export function NursePaymentCard({ pricing, paypalClientId, canSubmit, isPastSchedule, isSubmitting, isGettingLocation, form, validate, onApproved, onError }) {
 export function NursePaymentCard({ pricing, paypalClientId, canSubmit, isSubmitting, isGettingLocation, form, validate, onApproved, onError }) {
   const currency = pricing?.currency || "USD";
   const providerNet = pricing?.providerNet ?? ((pricing?.price ?? 10) - (pricing?.platformFee ?? 3));
@@ -29,7 +30,8 @@ export function NursePaymentCard({ pricing, paypalClientId, canSubmit, isSubmitt
         <PayPalCheckout clientId={paypalClientId} serviceKey="nurseRequest" currency="USD" disabled={!canSubmit || isSubmitting || isGettingLocation} validate={validate} onApproved={onApproved} onError={onError} />
       </div>
 
-      {!canSubmit ? <p className="mt-3 text-sm text-muted-foreground">Fill service, date, time, and address before paying.</p> : null}
+      {isPastSchedule ? <p className="mt-3 text-sm text-rose-600">Choose a future date and time before paying.</p> : null}
+      {!canSubmit && !isPastSchedule ? <p className="mt-3 text-sm text-muted-foreground">Fill service, date, time, and address before paying.</p> : null}
       {form.locationLat && form.locationLng ? <p className="mt-3 text-sm text-muted-foreground">Live pin attached.</p> : null}
       {isSubmitting ? <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Finalizing request…</div> : null}
     </Card>

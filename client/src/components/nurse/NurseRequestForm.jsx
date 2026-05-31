@@ -10,7 +10,19 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
   const { data: serviceSettings } = useServiceSettings();
   const pricing = serviceSettings?.servicePricing?.nurseRequest;
   const paypalClientId = serviceSettings?.paymentProvider?.paypalClientIdPublic;
-  const { form, canSubmit, isGettingLocation, updateField, resetForm, handleUseCurrentLocation } = useNurseRequestForm({ toast });
+  const { form, canSubmit, isPastSchedule, isGettingLocation, updateField, resetForm, handleUseCurrentLocation } = useNurseRequestForm({ toast });
+
+  const validateSchedule = () => {
+    if (isPastDateTime(form.requestedDate, form.requestedTime)) {
+      toast({
+        title: "Choose a future time",
+        description: "Nurse requests cannot be scheduled in the past.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return canSubmit;
+  };
 
   const validateSchedule = () => {
     if (isPastDateTime(form.requestedDate, form.requestedTime)) {
@@ -47,6 +59,7 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
         pricing={pricing}
         paypalClientId={paypalClientId}
         canSubmit={canSubmit}
+        isPastSchedule={isPastSchedule}
         isSubmitting={isSubmitting}
         isGettingLocation={isGettingLocation}
         form={form}
