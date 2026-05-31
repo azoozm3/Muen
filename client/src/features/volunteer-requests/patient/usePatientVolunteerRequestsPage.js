@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { getMinTime, getTodayLocal, isPastDateTime } from "@/lib/timeUtils";
 import { useAuth } from "@/hooks/use-auth";
 import {
   useCancelVolunteerRequest,
@@ -32,7 +33,13 @@ export function usePatientVolunteerRequestsPage() {
   const { current, history } = useMemo(() => splitVolunteerRequests(data), [data]);
 
   const updateForm = (key, value) => {
-    setForm((currentValue) => ({ ...currentValue, [key]: value }));
+    setForm((currentValue) => {
+      const nextValue = { ...currentValue, [key]: value };
+      if (key === "requestedDate" && nextValue.requestedTime < getMinTime(value)) {
+        nextValue.requestedTime = "";
+      }
+      return nextValue;
+    });
   };
 
   const captureLocation = () => {
@@ -77,11 +84,21 @@ export function usePatientVolunteerRequestsPage() {
   const submitRequest = async (event) => {
     event.preventDefault();
 
+    if (isPastDateTime(form.requestedDate, form.requestedTime)) {
+      toast({
+        title: "Choose a future time",
+        description: "Volunteer requests cannot be scheduled in the past.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await createMutation.mutateAsync({ body: form });
 
       setForm((currentValue) => ({
         ...INITIAL_VOLUNTEER_REQUEST_FORM,
+        requestedDate: getTodayLocal(),
         patientName: currentValue.patientName,
         patientPhone: currentValue.patientPhone,
       }));

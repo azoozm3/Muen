@@ -1,5 +1,6 @@
 import { useServiceSettings } from "@/hooks/use-service-settings";
 import { useToast } from "@/hooks/use-toast";
+import { isPastDateTime } from "@/lib/timeUtils";
 import { NursePaymentCard } from "./request-form/NursePaymentCard";
 import { NurseRequestFields } from "./request-form/NurseRequestFields";
 import { useNurseRequestForm } from "./request-form/useNurseRequestForm";
@@ -10,6 +11,18 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
   const pricing = serviceSettings?.servicePricing?.nurseRequest;
   const paypalClientId = serviceSettings?.paymentProvider?.paypalClientIdPublic;
   const { form, canSubmit, isGettingLocation, updateField, resetForm, handleUseCurrentLocation } = useNurseRequestForm({ toast });
+
+  const validateSchedule = () => {
+    if (isPastDateTime(form.requestedDate, form.requestedTime)) {
+      toast({
+        title: "Choose a future time",
+        description: "Nurse requests cannot be scheduled in the past.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return canSubmit;
+  };
 
   const finalizeRequest = async (paymentOrderId) => {
     await onSubmit({
@@ -37,6 +50,7 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
         isSubmitting={isSubmitting}
         isGettingLocation={isGettingLocation}
         form={form}
+        validate={validateSchedule}
         onApproved={async (orderId) => {
           try {
             await finalizeRequest(orderId);

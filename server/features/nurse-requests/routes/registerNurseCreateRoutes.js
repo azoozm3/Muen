@@ -7,7 +7,7 @@ export function registerNurseCreateRoutes(app) {
     const parsed = createNurseRequestSchema.safeParse(req.body || {});
     if (!parsed.success) return sendZodError(res, parsed.error);
     const requestDateTime = new Date(`${parsed.data.requestedDate}T${parsed.data.requestedTime}:00`);
-    if (requestDateTime < new Date()) {
+    if (Number.isNaN(requestDateTime.getTime()) || requestDateTime < new Date()) {
       return res.status(400).json({ message: "Cannot request nursing service in the past" });
     }
 
