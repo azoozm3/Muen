@@ -9,6 +9,10 @@ export function registerVolunteerCreateRoutes(app, { storage }) {
     try {
       if (req.session.userRole !== "patient") return res.status(403).json({ message: "Only patients can create volunteer requests" });
       const parsed = createVolunteerRequestSchema.parse(req.body || {});
+      const requestDateTime = new Date(`${parsed.requestedDate}T${parsed.requestedTime}:00`);
+      if (Number.isNaN(requestDateTime.getTime()) || requestDateTime < new Date()) {
+        return res.status(400).json({ message: "Cannot request volunteer help in the past" });
+      }
       const patient = await storage.getUserById(req.session.userId);
       if (!patient) return res.status(404).json({ message: "Patient not found" });
 
@@ -19,6 +23,8 @@ export function registerVolunteerCreateRoutes(app, { storage }) {
         patientName: parsed.patientName || patient.name || "Patient",
         patientPhone: parsed.patientPhone || patient.phone || "",
         serviceType: parsed.serviceType,
+        requestedDate: parsed.requestedDate,
+        requestedTime: parsed.requestedTime,
         address: parsed.address,
         latitude: parsed.latitude ?? null,
         longitude: parsed.longitude ?? null,

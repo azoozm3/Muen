@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { getMinTime, isPastDateTime } from "@/lib/timeUtils";
 import { DEFAULT_FORM, getToday } from "./constants";
 
 export function useNurseRequestForm({ toast }) {
@@ -8,19 +9,28 @@ export function useNurseRequestForm({ toast }) {
   }));
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
+  const isPastSchedule = useMemo(() => isPastDateTime(form.requestedDate, form.requestedTime), [form.requestedDate, form.requestedTime]);
+
   const canSubmit = useMemo(
     () =>
       Boolean(
         form.serviceType &&
         form.requestedDate &&
         form.requestedTime &&
-        form.address.trim(),
+        form.address.trim() &&
+        !isPastSchedule,
       ),
-    [form],
+    [form, isPastSchedule],
   );
 
   const updateField = (key, value) =>
-    setForm((current) => ({ ...current, [key]: value }));
+    setForm((current) => {
+      const next = { ...current, [key]: value };
+      if (key === "requestedDate" && next.requestedTime < getMinTime(value)) {
+        next.requestedTime = "";
+      }
+      return next;
+    });
   const resetForm = () =>
     setForm({ ...DEFAULT_FORM, requestedDate: getToday() });
 
@@ -68,6 +78,7 @@ export function useNurseRequestForm({ toast }) {
   return {
     form,
     canSubmit,
+    isPastSchedule,
     isGettingLocation,
     updateField,
     resetForm,

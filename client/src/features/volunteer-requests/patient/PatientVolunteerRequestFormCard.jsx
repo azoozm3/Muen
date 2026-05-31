@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { volunteerServices, volunteerUrgencies } from "@/features/volunteer-requests/volunteerUtils";
+import { getMinTime, getTodayLocal } from "@/lib/timeUtils";
 
 export default function PatientVolunteerRequestFormCard({ form, updateForm, isLocating, loading, onCaptureLocation, onClose, onSubmit }) {
   return (
@@ -36,6 +37,17 @@ export default function PatientVolunteerRequestFormCard({ form, updateForm, isLo
             <SelectTrigger><SelectValue placeholder="Urgency" /></SelectTrigger>
             <SelectContent>{volunteerUrgencies.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent>
           </Select>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="space-y-2 text-sm">
+            <span>Date</span>
+            <Input type="date" min={getTodayLocal()} value={form.requestedDate} onChange={(e) => updateForm("requestedDate", e.target.value)} required />
+          </label>
+          <label className="space-y-2 text-sm">
+            <span>Time</span>
+            <Input type="time" min={getMinTime(form.requestedDate)} value={form.requestedTime} onChange={(e) => updateForm("requestedTime", e.target.value)} required />
+          </label>
         </div>
 
         {form.serviceType === "Medication pickup" ? (
@@ -69,7 +81,7 @@ export default function PatientVolunteerRequestFormCard({ form, updateForm, isLo
 
         <Textarea value={form.details} onChange={(e) => updateForm("details", e.target.value)} placeholder="Describe the help you need" rows={4} />
 
-        <Button type="submit" className="w-full sm:w-auto" disabled={loading || !form.patientName.trim() || !form.patientPhone.trim() || !form.address.trim()}>
+        <Button type="submit" className="w-full sm:w-auto" disabled={loading || !form.patientName.trim() || !form.patientPhone.trim() || !form.requestedDate || !form.requestedTime || !form.address.trim()}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send request"}
         </Button>
       </form>
