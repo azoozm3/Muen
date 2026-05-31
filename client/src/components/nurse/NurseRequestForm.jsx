@@ -13,6 +13,19 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
   const { form, canSubmit, isPastSchedule, isGettingLocation, updateField, resetForm, handleUseCurrentLocation } = useNurseRequestForm({ toast });
 
   const validateNurseSchedule = () => {
+  const validateSchedule = () => {
+    if (isPastDateTime(form.requestedDate, form.requestedTime)) {
+      toast({
+        title: "Choose a future time",
+        description: "Nurse requests cannot be scheduled in the past.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return canSubmit;
+  };
+
+  const validateSchedule = () => {
     if (isPastDateTime(form.requestedDate, form.requestedTime)) {
       toast({
         title: "Choose a future time",
@@ -52,6 +65,7 @@ export default function NurseRequestForm({ onSubmit, isSubmitting }) {
         isGettingLocation={isGettingLocation}
         form={form}
         validate={validateNurseSchedule}
+        validate={validateSchedule}
         onApproved={async (orderId) => {
           try {
             await finalizeRequest(orderId);
