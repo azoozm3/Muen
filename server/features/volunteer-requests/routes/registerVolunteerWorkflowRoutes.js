@@ -20,7 +20,6 @@ export function registerVolunteerWorkflowRoutes(app, { storage }) {
       await requestDoc.save();
       res.json(serializeVolunteerRequest(requestDoc));
     } catch (err) {
-      console.error("PATCH /api/volunteer-requests/:id/accept error:", err);
       res.status(500).json({ message: err.message || "Failed to accept volunteer request" });
     }
   });
@@ -41,7 +40,6 @@ export function registerVolunteerWorkflowRoutes(app, { storage }) {
       res.json(serializeVolunteerRequest(requestDoc));
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/volunteer-requests/:id/status error:", err);
       res.status(500).json({ message: err.message || "Failed to update volunteer request" });
     }
   });
@@ -58,7 +56,6 @@ export function registerVolunteerWorkflowRoutes(app, { storage }) {
       await requestDoc.save();
       res.json(serializeVolunteerRequest(requestDoc));
     } catch (err) {
-      console.error("PATCH /api/volunteer-requests/:id/cancel error:", err);
       res.status(500).json({ message: err.message || "Failed to cancel volunteer request" });
     }
   });

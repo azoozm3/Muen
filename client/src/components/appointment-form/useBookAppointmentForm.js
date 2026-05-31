@@ -49,9 +49,11 @@ export function useBookAppointmentForm(doctor) {
     let active = true;
     setSlotsLoading(true);
 
-    fetch(`/api/doctors/${doctorId}/available-slots?date=${encodeURIComponent(form.date)}`)
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Failed to load slots"))))
-      .then((data) => {
+    async function loadSlots() {
+      try {
+        const res = await fetch(`/api/doctors/${doctorId}/available-slots?date=${encodeURIComponent(form.date)}`);
+        if (!res.ok) throw new Error("Failed to load slots");
+        const data = await res.json();
         if (!active) return;
         const slots = Array.isArray(data.slots) ? data.slots.map(normalizeTime).filter(Boolean) : [];
         const minTime = getMinTime(form.date);
@@ -62,16 +64,17 @@ export function useBookAppointmentForm(doctor) {
         if (data.hasConfiguredAvailability && form.time && !filtered.includes(normalizeTime(form.time))) {
           setForm((prev) => ({ ...prev, time: "" }));
         }
-      })
-      .catch(() => {
+      } catch (error) {
         if (!active) return;
         setAvailableSlots([]);
         setClinicAddress(null);
         setHasConfiguredAvailability(availableDays.size > 0);
-      })
-      .finally(() => {
+      } finally {
         if (active) setSlotsLoading(false);
-      });
+      }
+    }
+
+    loadSlots();
 
     return () => {
       active = false;

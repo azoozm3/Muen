@@ -3,6 +3,7 @@ import { NurseRequest } from "../../../../models/NurseRequest.js";
 import { createNurseRequestNumber } from "../../nurse-request.service.js";
 import { consumeCapturedPayment } from "../../../../routes/payment.routes.js";
 import { refundCapturedPayment } from "../../../../services/payment-refund.service.js";
+import { REQUEST_STATUS } from "../../../../../shared/constants.js";
 
 export async function createRequestFromBody(req, body) {
   const patient = await storage.getUserById(req.currentUser.id);
@@ -45,7 +46,7 @@ export async function assignNurse(requestId, nurseUser, action) {
     return doc;
   }
 
-  doc.status = "accepted";
+  doc.status = REQUEST_STATUS.ACCEPTED;
   doc.nurseId = nurseUser.id;
   doc.nurseName = nurseUser.name || "Nurse";
   doc.nursePhone = nurseUser.phone || "";
@@ -60,9 +61,9 @@ export async function cancelRequest(requestId, actor) {
   const isPatient = actor.role === "patient" && String(doc.patientId) === String(actor.id);
   const isNurse = actor.role === "nurse" && String(doc.nurseId) === String(actor.id);
   if (!isPatient && !isNurse && actor.role !== "admin") throw new Error("ACCESS_DENIED");
-  if (["completed", "cancelled"].includes(doc.status)) throw new Error("CANNOT_CANCEL");
+  if ([REQUEST_STATUS.COMPLETED, REQUEST_STATUS.CANCELLED].includes(doc.status)) throw new Error("CANNOT_CANCEL");
 
-  doc.status = "cancelled";
+  doc.status = REQUEST_STATUS.CANCELLED;
   doc.cancelledAt = new Date();
   await doc.save();
 
@@ -70,7 +71,12 @@ export async function cancelRequest(requestId, actor) {
     try {
       await refundCapturedPayment(doc, { reason: "Nurse request cancelled", note: "Nurse request cancelled" });
     } catch (error) {
-      console.warn("Nurse refund warning:", error?.message || error);
+      doc.payment = {
+        ...(doc.payment?.toObject ? doc.payment.toObject() : doc.payment || {}),
+        status: "failed",
+        refundReason: error?.message || "Refund failed",
+      };
+      await doc.save();
     }
   }
 

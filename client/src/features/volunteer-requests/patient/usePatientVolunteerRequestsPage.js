@@ -1,36 +1,37 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getMinTime, getTodayLocal, isPastDateTime } from "@/lib/timeUtils";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  useCancelVolunteerRequest,
-  useCreateVolunteerRequest,
-  useRateVolunteerRequest,
-  useVolunteerRequests,
-} from "@/hooks/use-volunteer-requests";
+import { TIMEOUTS } from "@shared/constants";
 import {
   applyUserDefaults,
   INITIAL_VOLUNTEER_REQUEST_FORM,
-  splitVolunteerRequests,
 } from "./volunteerRequestPageUtils";
+import { useVolunteerRequestActions } from "./hooks/useVolunteerRequestActions";
+import { useVolunteerRequestFilters } from "./hooks/useVolunteerRequestFilters";
+import { useVolunteerRequestList } from "./hooks/useVolunteerRequestList";
 
 export function usePatientVolunteerRequestsPage() {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { data = [], isLoading } = useVolunteerRequests();
-  const createMutation = useCreateVolunteerRequest();
-  const cancelMutation = useCancelVolunteerRequest();
-  const rateMutation = useRateVolunteerRequest();
+  const { requests, isLoading } = useVolunteerRequestList();
+  const { current, history } = useVolunteerRequestFilters(requests);
+  const {
+    submitVolunteerRequest,
+    cancelRequest,
+    rateVolunteer,
+    createMutation,
+    cancelMutation,
+    rateMutation,
+  } = useVolunteerRequestActions();
 
   const [showForm, setShowForm] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [form, setForm] = useState(INITIAL_VOLUNTEER_REQUEST_FORM);
 
   useEffect(() => {
-    setForm((current) => applyUserDefaults(current, user));
+    setForm((currentValue) => applyUserDefaults(currentValue, user));
   }, [user?.name, user?.phone]);
-
-  const { current, history } = useMemo(() => splitVolunteerRequests(data), [data]);
 
   const updateForm = (key, value) => {
     setForm((currentValue) => {
@@ -77,7 +78,7 @@ export function usePatientVolunteerRequestsPage() {
           variant: "destructive",
         });
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+      { enableHighAccuracy: true, timeout: TIMEOUTS.API_REQUEST, maximumAge: 0 },
     );
   };
 
@@ -93,51 +94,17 @@ export function usePatientVolunteerRequestsPage() {
       return;
     }
 
-    try {
-      await createMutation.mutateAsync({ body: form });
+    const created = await submitVolunteerRequest(form);
+    if (!created) return;
 
-      setForm((currentValue) => ({
-        ...INITIAL_VOLUNTEER_REQUEST_FORM,
-        requestedDate: getTodayLocal(),
-        patientName: currentValue.patientName,
-        patientPhone: currentValue.patientPhone,
-      }));
+    setForm((currentValue) => ({
+      ...INITIAL_VOLUNTEER_REQUEST_FORM,
+      requestedDate: getTodayLocal(),
+      patientName: currentValue.patientName,
+      patientPhone: currentValue.patientPhone,
+    }));
 
-      setShowForm(false);
-      toast({ title: "Volunteer request created" });
-    } catch (error) {
-      toast({
-        title: "Could not create request",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const cancelRequest = async (id) => {
-    try {
-      await cancelMutation.mutateAsync({ id });
-      toast({ title: "Request cancelled" });
-    } catch (error) {
-      toast({
-        title: "Could not cancel request",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const rateVolunteer = async (id, body) => {
-    try {
-      await rateMutation.mutateAsync({ id, body });
-      toast({ title: `Volunteer rated successfully: ${body.rating} ★` });
-    } catch (error) {
-      toast({
-        title: "Could not save rating",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    setShowForm(false);
   };
 
   return {

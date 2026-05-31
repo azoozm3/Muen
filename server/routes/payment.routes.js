@@ -5,13 +5,13 @@ import { ensureAppSettings, toPublicSettings, updateAppSettings } from "../servi
 import { consumeCapturedPayment, saveCapturedPaymentSession, saveSession } from "../services/payment-session.service.js";
 
 const createOrderSchema = z.object({
-  serviceKey: z.enum(["appointment", "nurseRequest", "emergencyRequest"]),
+  serviceKey: z.enum(["appointment", "nurseRequest", "emergencyRequest"], { required_error: "Service is required", invalid_type_error: "Please select a valid service" }),
   referenceId: z.string().optional().default(""),
 });
 
 const captureOrderSchema = z.object({
-  orderId: z.string().min(1),
-  serviceKey: z.enum(["appointment", "nurseRequest", "emergencyRequest"]),
+  orderId: z.string().min(1, "Order id is required"),
+  serviceKey: z.enum(["appointment", "nurseRequest", "emergencyRequest"], { required_error: "Service is required", invalid_type_error: "Please select a valid service" }),
 });
 
 export { consumeCapturedPayment };
@@ -22,7 +22,6 @@ export async function registerPaymentRoutes(app) {
       const settings = await ensureAppSettings();
       res.json(toPublicSettings(settings));
     } catch (error) {
-      console.error("GET /api/service-settings error", error);
       res.status(500).json({ message: "Failed to load service settings" });
     }
   });
@@ -33,7 +32,6 @@ export async function registerPaymentRoutes(app) {
       const settings = await updateAppSettings(payload);
       res.json(toPublicSettings(settings));
     } catch (error) {
-      console.error("PATCH /api/service-settings error", error);
       res.status(400).json({ message: error.message || "Failed to update service settings" });
     }
   });
@@ -54,7 +52,6 @@ export async function registerPaymentRoutes(app) {
       });
     } catch (error) {
       if (error instanceof z.ZodError) return sendZodError(res, error);
-      console.error("POST /api/payments/orders error", error);
       res.status(500).json({ message: error.message || "Failed to create payment order" });
     }
   });
@@ -80,7 +77,6 @@ export async function registerPaymentRoutes(app) {
       res.json(sessionPayment);
     } catch (error) {
       if (error instanceof z.ZodError) return sendZodError(res, error);
-      console.error("POST /api/payments/capture error", error);
       res.status(500).json({ message: error.message || "Failed to capture payment" });
     }
   });

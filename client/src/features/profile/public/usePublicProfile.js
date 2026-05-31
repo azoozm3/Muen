@@ -23,7 +23,6 @@ export function usePublicProfile(expectedRole, profileIdOverride = null) {
         const result = await fetchJson(`/api/profiles/${profileId}`, "Failed to load profile");
         if (isMounted) setData(result);
       } catch (loadError) {
-        console.error("Public profile load error:", loadError);
         if (isMounted) {
           setData(null);
           setError(loadError.message || "Failed to load profile");

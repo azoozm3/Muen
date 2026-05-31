@@ -45,11 +45,12 @@ export function usePaypalButtonRender({
       onErrorRef.current?.(message);
     };
 
-    loadPaypalSdk(clientId, currency)
-      .then((paypal) => {
+    async function renderPaypalButton() {
+      try {
+        const paypal = await loadPaypalSdk(clientId, currency);
         if (cancelled || !paypal?.Buttons) return;
 
-        return paypal
+        await paypal
           .Buttons({
             style: {
               layout: "vertical",
@@ -116,17 +117,18 @@ export function usePaypalButtonRender({
             },
           })
           .render(ref.current);
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!cancelled) {
           fail(err.message || "Failed to load PayPal");
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) {
           setLoading(false);
         }
-      });
+      }
+    }
+
+    renderPaypalButton();
 
     return () => {
       cancelled = true;

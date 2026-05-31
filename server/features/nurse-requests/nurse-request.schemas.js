@@ -15,15 +15,15 @@ export const createNurseRequestSchema = z.object({
 });
 
 export const respondSchema = z.object({
-  action: z.enum(["accepted", "rejected"]),
+  action: z.enum(["accepted", "rejected"], { required_error: "Action is required", invalid_type_error: "Please select a valid action" }),
 });
 
 export const statusSchema = z.object({
-  status: z.enum(["in_progress", "completed", "cancelled"]),
+  status: z.enum(["in_progress", "completed", "cancelled"], { required_error: "Status is required", invalid_type_error: "Please select a valid status" }),
 });
 
 export const noteSchema = z.object({
-  content: z.string().min(1).max(2000),
+  content: z.string().min(1, "Note content is required").max(2000, "Note content must be less than 2000 characters"),
 });
 
 const adviceItemSchema = z.object({
@@ -49,7 +49,7 @@ export const visitReportSchema = z.object({
   pulse: z.string().optional().default(""),
   pregnancyTest: z.string().optional().default(""),
   recommendation: z
-    .enum(["home_care", "follow_up", "see_doctor", "go_hospital", ""])
+    .enum(["home_care", "follow_up", "see_doctor", "go_hospital", ""], { invalid_type_error: "Please select a valid recommendation" })
     .optional()
     .default(""),
   recommendationNotes: z.string().optional().default(""),
@@ -59,7 +59,7 @@ export const visitReportSchema = z.object({
 });
 
 export const patientRatingSchema = z.object({
-  rating: z.number().min(1).max(5),
+  rating: z.number().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
   feedback: z.string().optional().default(""),
 });
 

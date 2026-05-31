@@ -13,7 +13,6 @@ export function registerDoctorRoutes(app, { storage }) {
       const doctors = await storage.getDoctors({ specialty, minRating, search, onlineConsultation });
       return res.json(doctors.map(sanitizeUser));
     } catch (error) {
-      console.error("GET /api/doctors error:", error);
       return res.status(500).json({ message: "Failed to fetch doctors" });
     }
   });
@@ -84,7 +83,6 @@ export function registerDoctorRoutes(app, { storage }) {
 
       return res.json({ slots, clinicAddress: doctor.clinicAddress || null, hasConfiguredAvailability, availableDays, isDoctorUnavailable: false });
     } catch (error) {
-      console.error("GET /api/doctors/:id/available-slots error:", error);
       return res.status(500).json({ message: "Failed to fetch available slots" });
     }
   });

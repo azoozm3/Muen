@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { buildMapHtml, fetchNearbyHospitals } from "@/features/nearby-hospitals/hospitalUtils";
 import { HospitalListCard, HospitalSummaryCard, MapCard } from "@/features/nearby-hospitals/NearbyHospitalsSections";
 import { BackButton } from "@/components/common/BackButton";
+import { TIMEOUTS } from "@shared/constants";
 
 export default function NearbyHospitals() {
   const [, navigate] = useLocation();
@@ -28,7 +29,7 @@ export default function NearbyHospitals() {
     navigator.geolocation.getCurrentPosition(
       (position) => setLocationState({ latitude: position.coords.latitude, longitude: position.coords.longitude, loading: false, error: "" }),
       (error) => setLocationState({ latitude: null, longitude: null, loading: false, error: error.code === 1 ? "Location permission was denied." : "Could not detect your location." }),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      { enableHighAccuracy: true, timeout: TIMEOUTS.API_REQUEST, maximumAge: TIMEOUTS.API_REQUEST },
     );
   };
 
@@ -43,19 +44,21 @@ export default function NearbyHospitals() {
     setLoadingHospitals(true);
     setHospitalsError("");
 
-    fetchNearbyHospitals(userLocation.latitude, userLocation.longitude)
-      .then((results) => {
+    async function loadNearbyHospitals() {
+      try {
+        const results = await fetchNearbyHospitals(userLocation.latitude, userLocation.longitude);
         if (!cancelled) setHospitals(results);
-      })
-      .catch((error) => {
+      } catch (error) {
         if (!cancelled) {
           setHospitals([]);
           setHospitalsError(error.message || "Could not load nearby hospitals.");
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoadingHospitals(false);
-      });
+      }
+    }
+
+    loadNearbyHospitals();
 
     return () => {
       cancelled = true;

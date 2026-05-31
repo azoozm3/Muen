@@ -7,7 +7,6 @@ export function registerAppointmentReadRoutes(app) {
       res.json(await getAppointmentsForSession({ userId: req.session.userId, userRole: req.session.userRole }));
     } catch (err) {
       if (err?.message === "ACCESS_DENIED") return res.status(403).json({ message: "Access denied" });
-      console.error("GET /api/appointments error:", err);
       res.status(500).json({ message: "Failed to fetch appointments" });
     }
   });

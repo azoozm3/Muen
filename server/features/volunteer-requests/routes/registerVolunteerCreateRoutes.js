@@ -39,7 +39,6 @@ export function registerVolunteerCreateRoutes(app, { storage }) {
       res.status(201).json(serializeVolunteerRequest(created));
     } catch (err) {
       if (err instanceof z.ZodError) return sendZodError(res, err);
-      console.error("POST /api/volunteer-requests error:", err);
       res.status(500).json({ message: err.message || "Failed to create volunteer request" });
     }
   });

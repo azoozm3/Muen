@@ -87,16 +87,7 @@ app.use(
 
 app.use(csrfProtection);
 
-export function log(message, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-
-  console.log(`${formattedTime} [${source}] ${message}`);
-}
+export function log() {}
 
 function summarizeResponse(body) {
   if (!serverEnv.enableApiResponseBodyLogging) return "";
@@ -146,7 +137,6 @@ async function startServer() {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    console.error(err);
     res.status(status).json({ message });
   });
 
@@ -158,12 +148,16 @@ async function startServer() {
   }
 
   httpServer.listen(serverEnv.port, "0.0.0.0", () => {
-    log(`serving on port ${serverEnv.port}`);
+    console.log(`Server running on port ${serverEnv.port}`);
   });
 }
 
-startServer().catch((error) => {
-  console.error("Failed to start server:");
-  console.error(error);
-  process.exit(1);
-});
+async function main() {
+  try {
+    await startServer();
+  } catch (error) {
+    process.exit(1);
+  }
+}
+
+main();

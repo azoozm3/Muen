@@ -16,7 +16,6 @@ export function registerAdminSettingsRoutes(app) {
       }));
     } catch (err) {
       if (err instanceof ZodError) return sendZodError(res, err);
-      console.error("POST /api/admin/payments/mark-provider-paid error:", err);
       res.status(400).json({ message: err.message || "Failed to mark provider payout as paid" });
     }
   });
@@ -26,7 +25,6 @@ export function registerAdminSettingsRoutes(app) {
       const settings = await ensureAppSettings();
       res.json({ servicePricing: toPublicSettings(settings).servicePricing });
     } catch (err) {
-      console.error("GET /api/admin/settings error:", err);
       res.status(500).json({ message: "Failed to fetch admin settings" });
     }
   });
@@ -40,7 +38,6 @@ export function registerAdminSettingsRoutes(app) {
       res.json(updated);
     } catch (err) {
       if (err instanceof ZodError) return sendZodError(res, err);
-      console.error("PATCH /api/admin/settings error:", err);
       res.status(500).json({ message: err.message || "Failed to update settings" });
     }
   });

@@ -12,7 +12,6 @@ export function registerAdminDashboardRoutes(app) {
   app.get("/api/admin/dashboard", requireAdmin, async (_req, res) => {
     try { res.json(await getAdminDashboardData()); }
     catch (err) {
-      console.error("GET /api/admin/dashboard error:", err);
       res.status(500).json({ message: "Failed to fetch dashboard data" });
     }
   });
@@ -29,7 +28,6 @@ export function registerAdminDashboardRoutes(app) {
         finance: { servicePricing: dashboard.servicePricing, totals: dashboard.summary.payments },
       });
     } catch (err) {
-      console.error("GET /api/admin/stats error:", err);
       res.status(500).json({ message: "Failed to fetch admin stats" });
     }
   });
@@ -37,7 +35,6 @@ export function registerAdminDashboardRoutes(app) {
   app.get("/api/admin/requests", requireAdmin, async (_req, res) => {
     try { res.json(await getAdminRequestsData()); }
     catch (err) {
-      console.error("GET /api/admin/requests error:", err);
       res.status(500).json({ message: "Failed to fetch requests" });
     }
   });
@@ -45,7 +42,6 @@ export function registerAdminDashboardRoutes(app) {
   app.get("/api/admin/appointments", requireAdmin, async (_req, res) => {
     try { res.json(await getAdminAppointmentsData()); }
     catch (err) {
-      console.error("GET /api/admin/appointments error:", err);
       res.status(500).json({ message: "Failed to fetch appointments" });
     }
   });
@@ -53,7 +49,6 @@ export function registerAdminDashboardRoutes(app) {
   app.get("/api/admin/payments", requireAdmin, async (_req, res) => {
     try { res.json(await getAdminPaymentsData()); }
     catch (err) {
-      console.error("GET /api/admin/payments error:", err);
       res.status(500).json({ message: "Failed to fetch payments" });
     }
   });
@@ -61,7 +56,6 @@ export function registerAdminDashboardRoutes(app) {
   app.get("/api/admin/analytics", requireAdmin, async (_req, res) => {
     try { res.json(await getAdminAnalyticsData()); }
     catch (err) {
-      console.error("GET /api/admin/analytics error:", err);
       res.status(500).json({ message: "Failed to fetch analytics" });
     }
   });
@@ -71,7 +65,6 @@ export function registerAdminDashboardRoutes(app) {
       const limit = Number(req.query.limit || 25);
       res.json(await storage.getRecentActivity(limit));
     } catch (err) {
-      console.error("GET /api/admin/logs error:", err);
       res.status(500).json({ message: "Failed to fetch recent activity" });
     }
   });
@@ -82,7 +75,6 @@ export function registerAdminDashboardRoutes(app) {
       const limit = Number(req.query.limit || 25);
       res.json(await storage.getActivityLogsPage({ page, limit }));
     } catch (err) {
-      console.error("GET /api/admin/activity-logs error:", err);
       res.status(500).json({ message: "Failed to fetch activity logs" });
     }
   });
